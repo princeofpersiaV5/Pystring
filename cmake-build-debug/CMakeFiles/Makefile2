@@ -94,12 +94,12 @@ clean: CMakeFiles/Pystring.dir/clean
 CMakeFiles/Pystring.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Pystring.dir/build.make CMakeFiles/Pystring.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Pystring.dir/build.make CMakeFiles/Pystring.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/wulezhou/CLionProjects/Pystring/cmake-build-debug/CMakeFiles --progress-num=1,2,3 "Built target Pystring"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/wulezhou/CLionProjects/Pystring/cmake-build-debug/CMakeFiles --progress-num=1,2 "Built target Pystring"
 .PHONY : CMakeFiles/Pystring.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/Pystring.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/wulezhou/CLionProjects/Pystring/cmake-build-debug/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/wulezhou/CLionProjects/Pystring/cmake-build-debug/CMakeFiles 2
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/Pystring.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/wulezhou/CLionProjects/Pystring/cmake-build-debug/CMakeFiles 0
 .PHONY : CMakeFiles/Pystring.dir/rule

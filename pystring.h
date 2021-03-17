@@ -56,7 +56,7 @@ namespace pystring {
     rjust(const std::string &str, int width);   //return a string right justified in a string of length width
     void repartition(const std::string &str, const std::string &sep,
                      std::vector<std::string> &result);   //split the string around last occurrence of sep
-    std::string rstrip(const std::string &str, cosnt std
+    std::string rstrip(const std::string &str, const std
                        ::string &chars = "");   //return a copy of string with trailing characters removed
     void split(const std::string &str, std::vector<std::string> &result, const std::string &sep = "",
                int maxsplit = -1);   //ll the result with the words in the string, using sep as the delimiter string
@@ -136,7 +136,7 @@ namespace pystring {
 
             std::string split_nt(std::string head, std::string tail, const std::string &path);
 
-            std::string split_posix(std::string head, std::string tail,onst std::string &path);
+            std::string split_posix(std::string head, std::string tail,const std::string &path);
 
             /*split the pathname into a pair (drive,tail)*/
             void splitdrive(std::string &drivespec, std::string &pathspec, const std::string &path);

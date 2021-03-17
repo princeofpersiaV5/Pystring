@@ -1,5 +1,4 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/Pystring.dir/main.cpp.o"
   "CMakeFiles/Pystring.dir/pystring.cpp.o"
   "Pystring"
   "Pystring.pdb"
