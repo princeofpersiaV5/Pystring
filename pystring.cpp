@@ -171,26 +171,23 @@ namespace pystring
     {
         Py_ssize_t len=(Py_ssize_t) str.size(),i,j,charslen=(Py_ssize_t) chars.size();
 
-        if (charslen==0)
-        {
-            i=0;
-            if (striptype!=RIGHTSTRIP)
-            {
-                while (i<len && ::isspace(str[i]))
+        if (charslen==0) {
+            i = 0;
+            if (striptype != RIGHTSTRIP) {
+                while (i < len && ::isspace(str[i]))
                     i++;
             }
 
-            j=len;
-            if (striptype!=LEFTSTRIP)
-            {
+            j = len;
+            if (striptype != LEFTSTRIP) {
                 do {
                     j--;
-                }
-                while (j>=i && ::isspace(str[j]));
+                } while (j >= i && ::isspace(str[j]));
 
                 j++;
             }
-            else
+        }
+        else
             {
                 const char * sep=chars.c_str();
                 i=0;
@@ -217,10 +214,373 @@ namespace pystring
                 return str.substr(i,j-i);
         }
 
+    void partition(const std::string & str, const std::string & sep, std::vector<std::string> & result)
+    {
+        result.resize(3);
+        int index=find(str,sep);
+        if (index<0)
+        {
+            result[0]=str;
+            result[1]=empty_string;
+            result[2]=empty_string;
+        }
+        else
+        {
+            result[0]=str.substr(0,index);
+            result[1]=sep;
+            result[2]=str.substr(index+sep.size(),str.size());
+        }
+
+
+    }
+
+    void rpartition(const std::string & str, const std::string & sep, std::vector<std::string> & result)
+    {
+        result.resize(3);
+        int index=rfind(str,sep);
+        if (index<0)
+        {
+            result[0]=empty_string;
+            result[1]=empty_string;
+            result[2]=str;
+        }
+        else
+        {
+            result[0]=str.substr(0,index);
+            result[1]=sep;
+            result[2]=str.substr(index+sep.size(),str.size());
+        }
+    }
+
+    std::string strip(const std::string & str, const std::string & chars)
+    {
+        return do_strip(str,BOTHSTRIP,chars);
+    }
+
+    std::string lstrip(const std::string & str,const std::string & chars)
+    {
+        return do_strip(str,LEFTSTRIP,chars);
+    }
+
+    std::string rstrip(const std::string & str, const std::string & chars)
+    {
+        return do_strip(str,RIGHTSTRIP,chars);
+    }
+
+    std::string join(const std::string & str,const std::vector<std::string> & seq)
+    {
+        std::vector<std::string>::size_type seqlen=seq.size();
+        if(seqlen==0) return empty_string;
+        if(seqlen==1) return seq[0];
+
+        std::string result(seq[0]);
+
+        for(int i=1;i<seqlen;++i)
+        {
+            result+=str+seq[i];
+        }
+
+        return result;
+    }
+
+    namespace
+    {
+        int _string_tailmatch(const std::string & self, const std::string & substr, Py_ssize_t start, Py_ssize_t end, int direction)
+        {
+            Py_ssize_t len=(Py_ssize_t) self.size();
+            Py_ssize_t slen=(Py_ssize_t) substr.size();
+
+            const char* sub=substr.c_str();
+            const char* str=self.c_str();
+
+            ADJUST_INDICES(start,end,len);
+
+            if (direction<0)
+            {
+                if(start+slen>len)
+                    return 0;
+            }
+            else
+            {
+                if(end-start<slen || start>len)
+                    return 0;
+                if (end-slen>start)
+                    start=end-slen;
+            }
+            if (end-start>=slen)
+                return (!std::memcmp(str+start,sub,slen));
+
+            return 0;
+        }
+    }
+
+    bool endswith(const std::string & str, const std::string & suffix, int start, int end)
+    {
+        int result=_string_tailmatch(str,suffix,(Py_ssize_t) start, (Py_ssize_t) end, +1);
+
+        return static_cast<bool>(result);
+    }
+
+    bool startswith(const std::string & str, const std::string & prefix, int start, int end)
+    {
+        int result=_string_tailmatch(str,prefix,(Py_ssize_t) start, (Py_ssize_t) end,-1);
+
+        return static_cast<bool>(result);
+    }
+
+    bool isalnum(const std::string & str)
+    {
+        std::string::size_type len=str.size(),i;
+        if(len==0) return false;
+
+        if(len==1)
+        {
+            return ::isalnum(str[0]);
+        }
+
+        for(i=0;i<len;++i)
+        {
+            if(!::isalnum(str[i])) return false;
+        }
+
+        return true;
+    }
+
+    bool isalpha(const std::string & str)
+    {
+        std::string::size_type len=str.size(),i;
+        if(len==0) return false;
+        if(len==1) return ::isalpha((int) str[0]);
+
+        for (i=0;i<len;++i)
+        {
+            if (!::isalpha((int) str[i])) return false;
+        }
+
+        return true;
+    }
+
+    bool isdigit(const std::string & str)
+    {
+        std::string::size_type len=str.size(),i;
+        if (len==0) return false;
+        if (len==1) return ::isdigit((str[0]));
+
+        for (i=0;i<len;++i)
+        {
+            if (!::isdigit(str[i])) return false;
+        }
+
+        return true;
+    }
+
+    bool islower(const std::string & str)
+    {
+        std::string::size_type len=str.size(),i;
+        if(len==0) return false;
+        if (len==1) return ::islower(str[0]);
+
+        for(i=0;i<len;++i)
+        {
+            if (!::islower(str[i])) return false;
+        }
+
+        return true;
+    }
+
+    bool isspace(const std::string & str)
+    {
+        std::string::size_type len=str.size(),i;
+        if(len==0) return false;
+        if(len==1) return ::isspace(str[0]);
+
+        for(i=0;i<len;++i)
+        {
+            if(!::isspace(str[i])) return false;
+        }
+
+        return true;
+    }
+
+    bool istitle(const std::string & str)
+    {
+        std::string::size_type len=str.size(),i;
+        if(len==0) return false;
+        if(len==1) return ::isupper(str[0]);
+
+        bool cased=false, previous_is_cased=false;
+
+        for (i=0;i<len;++i)
+        {
+            if(::isupper(str[i]))
+            {
+                if(previous_is_cased)
+                    return false;
+
+                previous_is_cased=true;
+                cased=true;
+            }
+            else if (::islower(str[i]))
+            {
+                if(!previous_is_cased)
+                    return false;
+
+                previous_is_cased=true;
+                cased=true;
+            }
+
+            else
+            {
+                previous_is_cased=false;
+            }
+        }
+
+        return cased;
+    }
+
+    bool isupper(const std::string & str)
+    {
+        std::string::size_type len=str.size(),i;
+        if(len==0) return false;
+        if(len==1) return ::isupper(str[0]);
+
+        for (i=0;i<len;++i)
+        {
+            if(!::isupper(str[i])) return false;
+        }
+
+        return  true;
+    }
+
+    std::string capitalize(const std::string & str)
+    {
+        std::string s(str);
+        std::string::size_type len=s.size(),i;
+
+        if(len>0)
+        {
+            if (::islower(s[0])) s[0]=(char) ::toupper(s[0]);
+        }
+
+        for (i=1;i<len;++i)
+        {
+            if(::isupper(s[i])) s[i]=(char) ::toupper(s[i]);
+        }
+
+        return s;
+    }
+
+    std::string lower(const std::string & str)
+    {
+        std::string s(str);
+        std::string::size_type len=s.size(),i;
+
+        for(i=0;i<len;++i)
+        {
+            if(::isupper(str[i])) s[i]=(char) ::tolower(s[i]);
+        }
+        return s;
+    }
+
+    std::string upper(const std::string & str)
+    {
+        std::string s(str);
+        std::string::size_type len=s.size(),i;
+
+        for(i=0;i<len;++i)
+        {
+            if(::islower(s[i])) s[i]=(char) ::toupper(s[i]);
+        }
+
+        return s;
+    }
+
+    std::string swapcase(const std::string & str)
+    {
+        std::string s(str);
+        std::string::size_type len=s.size(),i;
+
+        for(i=0;i<len;++i)
+        {
+            if(::islower(s[i])) s[i]=(char) ::toupper(s[i]);
+            else if(::isupper(s[i])) s[i]=(char) ::tolower(s[i]);
+        }
+
+        return s;
+    }
+
+    std::string title(const std::string & str)
+    {
+        std::string s(str);
+        std::string::size_type len=s.size(),i;
+        bool previous_is_cased=false;
+
+        for(i=0;i<len;++i)
+        {
+            int c=s[i];
+            if(::islower(c))
+            {
+                if(!previous_is_cased)
+                {
+                    s[i]=(char) ::toupper(c);
+                }
+                previous_is_cased=true;
+            }
+            else if(::isupper(c))
+            {
+                if(previous_is_cased)
+                {
+                    s[i]=(char) ::tolower(c);
+                }
+                previous_is_cased=true;
+            }
+            else
+                previous_is_cased=false;
+        }
+        return s;
+    }
+
+    std::string translate(const std::string & str, const std::string & table, const std::string & deletechars)
+    {
+        std::string s;
+        std::string::size_type len=str.size(),dellen=deletechars.size();
+
+        if(table.size()!=256)
+        {
+            return str;
+        }
+        if (dellen==0)
+        {
+            s=str;
+            for(std::string::size_type i=0;i<len;++i)
+            {
+                s[i]=table[s[i]];
+            }
+            return s;
+        }
+
+        int trans_table[256];
+        for(int i=0;i<256;i++)
+        {
+            trans_table[i]=table[i];
+        }
+
+        for(std::string::size_type i=0;i<dellen;i++)
+        {
+            trans_table[(int)deletechars[i]]=-1;
+        }
+
+        for(std::string::size_type i=0;i<len;++i)
+        {
+            if(trans_table[(int) str[i]]!=-1)
+            {
+                s+=table[str[i]];
+            }
+        }
+
+        return s;
     }
 
 
-
-
-
 }
+
