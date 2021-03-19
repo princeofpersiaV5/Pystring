@@ -581,6 +581,33 @@ namespace pystring
         return s;
     }
 
+    std::string zfill(const std::string & str,int width)
+    {
+        int len=(int) str.size();
+        if (len>=width)
+        {
+            return str;
+        }
 
+        std::string s(str);
+
+        int fill=width-len;
+        s=std::string(fill,'0')+s;
+
+        if (s[fill]=='+' || s[fill]=='-')
+        {
+            s[0]=s[fill];
+            s[fill]='0';
+        }
+
+        return s;
+    }
+
+    std::string ljust(const std::string & str,int width)
+    {
+        std::string::size_type len=str.size();
+        if(((int)len)>=width) return str;
+        return std::string(width-len,' ')+str;
+    }
 }
 
