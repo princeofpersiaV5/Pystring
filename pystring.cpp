@@ -609,5 +609,206 @@ namespace pystring
         if(((int)len)>=width) return str;
         return std::string(width-len,' ')+str;
     }
+
+    std::string rjust(const std::string & str,int width)
+    {
+        std::string::size_type len=str.size();
+        if(((int)len)>=width) return str;
+        return std::string(width-len,' ')+str;
+    }
+
+    std::string center(const std::string & str, int width)
+    {
+        int len=(int) str.size();
+        int marg,left;
+
+        marg=width-len;   //recording the white part
+        left=marg/2+(marg&width&1);
+
+        return std::string(left,' ')+str+std::string(marg-left,' ');
+    }
+
+    std::string slice(const std::string & str, int start, int end)
+    {
+        ADJUST_INDICES(start,end,(int) str.size());
+        if (start>=end) return empty_string;
+        return str.substr(start,end-start);
+    }
+
+    int find(const std::string & str, const std::string & sub,int start, int end)
+    {
+        ADJUST_INDICES(start,end,(int)str.size());
+        std::string::size_type result=str.find(sub,start);
+
+        if(result==std::string::npos || (result+sub.size()>(std::string::size_type) end))
+        {
+            return -1;
+        }
+
+        return (int) result;
+    }
+
+    int index(const std::string & str, const std::string & sub, int start, int end)
+    {
+        return find(str,sub,start,end);
+    }
+
+    int rfine(const std::string & str, const std::string & sub, int start, int end)
+    {
+        ADJUST_INDICES(start,end,(int) str.size());
+
+        std::string::size_type result=str.rfind(sub,end);
+
+        if(result==std::string::npos || result<(std::string::size_type) start || (result+sub.size()>(std::string::size_type) end))
+        {
+            return (int) -1;
+        }
+
+        return result;
+    }
+
+    int rindex(const std::string & str, const std::string & sub, int start, int end)
+    {
+        return rfind(str, sub,start,end);
+    }
+
+    std::string expandtabs(const std::string & str, int tabsize)
+    {
+        std::string s(str);
+
+        std::string::size_type len=str.size(),i=0;
+        int offset=0;
+        int j=0;
+        for (i=0;i<len;++i)
+        {
+            if (str[i]=='\t')
+            {
+                if (tabsize>0)
+                {
+                    int fillsize=tabsize-(j%tabsize);
+                    j+=fillsize;
+                    s.replace(i+offset,1,std::string(fillsize,' '));
+                    offset+=fillsize-1;
+                }
+                else
+                {
+                    s.replace(i+offset,1,empty_string);
+                    offset-=1;
+                }
+            }
+            else
+            {
+                j++;
+                if(str[i]=='\n' || str[i]=='\r')
+                {
+                    j=0;
+                }
+            }
+        }
+
+        return s;
+    }
+
+    int count(const std::string & str, const std::string & substr, int start, int end)
+    {
+        int nummatches=0;
+        int cursor=start;
+
+        while (1)
+        {
+            cursor=find(str,substr,cursor,end);
+            if(cursor<0) break;
+
+            cursor+=(int) substr.size();
+            nummatches+=1;
+        }
+
+        return nummatches;
+    }
+
+    std::string replace(const std::string & str, const std::string & oldstr, const std::string & newstr, int count)
+    {
+        int sofar=0;
+        int cursor=0;
+        std::string s(str);
+
+        std::string::size_type oldlen=oldstr.size(),newlen=newstr.size();
+        cursor=find(s,oldstr,cursor);   //find the location of the old string
+        while (cursor!=-1 && cursor<=(int) s.size())
+        {
+            if(count>-1 && sofar >=count)
+            {
+                break;
+            }
+
+            s.replace(cursor,oldlen,newstr);
+            cursor+=(int) newlen;
+
+            if (oldlen!=0)
+            {
+                cursor=find(s,oldstr,cursor);;
+            }
+            else
+            {
+                ++cursor;
+            }
+
+            ++sofar;
+        }
+
+        return s;
+    }
+
+    void splitlines(const std::string & str, std::vector<std::string> & result, bool keepends)
+    {
+        result.clear();
+        std::string::size_type len=str.size(),i,j,eol;
+
+        for (i=j=0;i<len;)
+        {
+            while (i<len && str[i] != '\n' && str[i]!='\r') i++;
+
+            eol=i;
+            if (i<len)
+            {
+                if (str[i]=='\r' && i+1<len && str[i+1] == '\n')
+                {
+                    i+=2;
+                }
+                else
+                {
+                    i++;
+                }
+                if (keepends)
+                    eol=i;
+            }
+
+            result.push_back(str.substr(j,eol-j));
+            j=i;
+        }
+
+        if (j<len)
+            result.push_back(str.substr(j,len-j));
+    }
+
+    std::string mul(const std::string & str, int n)
+    {
+        if (n<=0) return empty_string;
+        if (n==1) return str;
+
+        std::ostringstream os;
+        for(int i=0;i<n;++i)
+        {
+            os<<str;
+        }
+        return os.str();
+    }
+
+
+
+
+
+
 }
+
 
