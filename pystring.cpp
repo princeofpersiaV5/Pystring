@@ -928,6 +928,55 @@ namespace os
             return tail;
         }
 
+        std::string basename_posix(const std::string & path)
+        {
+            std::string head,tail;
+            split_posix(head,tail,path);
+            return tail;
+        }
+
+        std::string basename(const std::string & path)
+        {
+#ifdef WINDOWS
+            return basename_nt(path);
+#else
+            return basename_posix(path);
+#endif
+        }
+
+        std::string dirname_nt(const std::string & path)
+        {
+            std::string head,tail;
+            split_nt(head,tail,path);
+            return head;
+        }
+
+        std::string dirname_posix(const std::string & path)
+        {
+            std::string head,tail;
+            split_posix(head,tail,path);
+            return head;
+        }
+
+        std::string dirname(const std::string & path)
+        {
+#ifdef WINDOWS
+            return dirname_nt(path);
+#else
+            return dirname_posix(path);
+#endif
+        }
+
+        std::string normpath_nt(const std::string & p)
+        {
+            std::string path=p;
+            path=pystring::replace(path,forward_slash,double_back_slash);
+
+            std::string prefix;
+            splitdrive_nt(prefix,path,path);
+        }
+
+
 
     }
 }
