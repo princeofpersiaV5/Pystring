@@ -134,9 +134,9 @@ namespace pystring {
             /*split the path name into a pair, (head, tail) where tail is the last pathname and head is everything lead to tail*/
             std::string split(std::string head, std::string tail, const std::string &path);
 
-            std::string split_nt(std::string head, std::string tail, const std::string &path);
+            void split_nt(std::string head, std::string tail, const std::string &path);
 
-            std::string split_posix(std::string head, std::string tail,const std::string &path);
+            void split_posix(std::string head, std::string tail,const std::string &path);
 
             /*split the pathname into a pair (drive,tail)*/
             void splitdrive(std::string &drivespec, std::string &pathspec, const std::string &path);

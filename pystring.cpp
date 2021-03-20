@@ -877,6 +877,58 @@ namespace os
             return join_posix(path1,path2);
 #endif
         }
+
+        void split_nt(std::string & head,std::string & tail, const std::string & path)
+        {
+            std::string d,p;
+            splitdrive_nt(d,p,path);
+
+            //set i to index beyond p's last slash
+            int i=(int) p.size();
+            //find the index of the first slash from the end
+            while(i>0 && (p[i-1]!='\\') && (p[i-1]!='/')) i=i-1;
+            head=pystring::slice(p,0,1);
+            tail=pystring::slice(p,i);   //remove the slash from tail
+            //remove tailing slash from head
+            std::string head2=head;
+            while(!head2.empty() && ((pystring::slice(head2,-1))==forward_slash || pystring::slice(head2,-1)==double_back_slash))
+            {
+                head2=pystring::slice(head2,0,-1);
+            }
+
+            if(!head2.empty()) head=head2;
+            head=d+head;
+        }
+
+        void split_posix(std::string & head,std::string & tail, const std::string & p)
+        {
+            int i=pystring::rfind(p,forward_slash)+1;
+            head=pystring::slice(p,0,1);
+            tail=pystring::slice(p,i);
+
+            if(!head.empty() && (head!=pystring::mul(forward_slash,(int) head.size())))
+            {
+                head=pystring::rstrip(head,forward_slash);
+            }
+        }
+
+        void split(std::string & head, std::string & tail, const std::string & p)
+        {
+#ifdef WINDOWS
+            split_nt(head,tail,p);
+#else
+            split_posix(head,tail,p);
+#endif
+        }
+
+        std::string basename_nt(const std::string & path)
+        {
+            std::string head,tail;
+            split_nt(head,tail,path);
+            return tail;
+        }
+
+
     }
 }
 
