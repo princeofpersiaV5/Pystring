@@ -974,7 +974,59 @@ namespace os
 
             std::string prefix;
             splitdrive_nt(prefix,path,path);
+
+            if (prefix.empty())
+            {
+                while (pystring::slice(path,0,1)==double_back_slash)
+                {
+                    prefix=prefix+double_back_slash;
+                    path=pystring::startswith(path,double_back_slash);
+                }
+            }
+            else
+            {
+                if(pystring::startswith(path,double_back_slash))
+                {
+                    prefix=prefix+double_back_slash;
+                    path=pystring::lstrip(path,double_back_slash);
+                }
+            }
+
+            std::vector<std::string> comps;
+            pystring::split(path,comps,double_back_slash);
+
+            int i=0;
+
+            while (i<(int) comps.size())
+            {
+                if(comps[i].empty() || comps[i]==dot)
+                {
+                    comps.erase(comps.begin()+i);
+                }
+                else if(comps[i]==double_dot)
+                {
+                    if(i>0 && comps[i-1] != double_dot)
+                    {
+                        comps.erase(comps.begin()+i-1,comps.begin()+i+1);
+                        i-=1;
+                    }
+                    else if (i==0 && pystring::endswith(prefix,double_back_slash))
+                        comps.erase(comps.begin()+i);
+                    else
+                        i+=1;
+                }
+                else
+                    i+=1;
+            }
+
+            if (prefix.empty() && comps.empty())
+            {
+                comps.push_back(dot);
+            }
+
+            return prefix+pystring::join(double_back_slash,comps);
         }
+
 
 
 
