@@ -287,7 +287,7 @@ bool endswith(const std::string &str, const std::string &suffix, int start, int 
     return static_cast<bool>(result);
 }
 
-bool startswith(const std::string &str, const std::string &prefix, int start, int end) {
+bool startwith(const std::string &str, const std::string &prefix, int start, int end) {
     int result = _string_tailmatch(str, prefix, (Py_ssize_t) start, (Py_ssize_t) end, -1);
 
     return static_cast<bool>(result);
@@ -731,7 +731,7 @@ namespace os
 
         bool isabs_posix(const std::string & s)
         {
-            return pystring::startswith(s,forward_slash);
+            return pystring::startwith(s,forward_slash);
         }
 
         bool isabs(const std::string & path)
@@ -798,7 +798,7 @@ namespace os
                 {
                     if (pystring::endswith(path,forward_slash) || pystring::endswith(path,double_back_slash))
                     {
-                        if (pystring::startswith(b,forward_slash) || pystring::startswith(b,double_back_slash))
+                        if (pystring::startwith(b,forward_slash) || pystring::startwith(b,double_back_slash))
                         {
                             path+=pystring::slice(b,1);
                         }
@@ -812,7 +812,7 @@ namespace os
                         path+=b;
                     } else if (!b.empty())
                     {
-                        if(pystring::startswith(b,forward_slash) || pystring::startswith(b,double_back_slash))
+                        if(pystring::startwith(b,forward_slash) || pystring::startwith(b,double_back_slash))
                         {
                             path+=b;
                         }
@@ -850,7 +850,7 @@ namespace os
             for (unsigned int i=1;i<paths.size();++i)
             {
                 std::string b=paths[i];
-                if (pystring::startswith(b,forward_slash))
+                if (pystring::startwith(b,forward_slash))
                     path=b;
                 else if(path.empty() || pystring::endswith(path,forward_slash))
                     path+=b;
@@ -980,12 +980,12 @@ namespace os
                 while (pystring::slice(path,0,1)==double_back_slash)
                 {
                     prefix=prefix+double_back_slash;
-                    path=pystring::startswith(path,double_back_slash);
+                    path=pystring::startwith(path,double_back_slash);
                 }
             }
             else
             {
-                if(pystring::startswith(path,double_back_slash))
+                if(pystring::startwith(path,double_back_slash))
                 {
                     prefix=prefix+double_back_slash;
                     path=pystring::lstrip(path,double_back_slash);
@@ -1027,11 +1027,55 @@ namespace os
             return prefix+pystring::join(double_back_slash,comps);
         }
 
+        std::string normpath_posix(const std::string & p)
+        {
+            if(p.empty()) return dot;
 
+            std::string path=p;
 
+            int initial_slashes=pystring::startwith(path,forward_slash) ? 1:0;
 
+            if(initial_slashes && pystring::startwith(path,double_back_slash) && !pystring::startwith(path,triple_forward_slash))
+            {
+                initial_slashes=2;
+            }
+            std::vector<std::string> comps,new_comps;
+            pystring::split(path,comps,forward_slash);
+
+            for(unsigned int i=0;i<comps.size();++i)
+            {
+                std::string comp=comps[i];
+                if(comp.empty() || comp==dot)
+                {
+                    continue;
+                }
+                if(comp!=double_dot || ((initial_slashes==0) && new_comps.empty()) || (!new_comps.empty() && new_comps[new_comps.size()-1]==double_dot))
+                {
+                    new_comps.push_back(comp);
+                }
+                else if (!new_comps.empty())
+                {
+                    new_comps.pop_back();
+                }
+            }
+
+            path=pystring::join(forward_slash,new_comps);
+            if (initial_slashes>0)
+                path=pystring::mul(forward_slash, initial_slashes)+path;
+
+            if(path.empty()) return dot;
+            return path;
+        }
+
+        std::string normpath(const std::string & path)
+        {
+#ifdef WINDOWS
+            return normpath_nt(path);
+#else
+            return normpath_posix(path);
+#endif
+        }
     }
 }
-
 }
 
