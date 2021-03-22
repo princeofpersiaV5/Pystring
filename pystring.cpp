@@ -1075,6 +1075,56 @@ namespace os
             return normpath_posix(path);
 #endif
         }
+
+        void splitext_genetic(std::string & root, std::string & ext, const std::string & p, const std::string & sep, const std::string & altsep, const std::string & extsep)
+        {
+            int sepIndex=pystring::rfind(p,sep);
+            if (!altsep.empty())
+            {
+                int altsepIndex=pystring::rfind(p,altsep);
+                sepIndex=std::max(sepIndex,altsepIndex);
+            }
+
+            int dotIndex=pystring::rfind(p,extsep);
+            if(dotIndex>sepIndex)
+            {
+                //skip all leading dots
+                int filenameIndex=sepIndex+1;
+
+                while(filenameIndex<dotIndex)
+                {
+                    if(pystring::slice(p,filenameIndex)!=extsep)
+                    {
+                        root=pystring::slice(p,0,dotIndex);
+                        ext=pystring::slice(p,dotIndex);
+                        return;
+                    }
+                    filenameIndex+=1;
+                }
+            }
+
+            root=p;
+            ext=empty_string;
+        }
+
+        void splitext_nt(std::string & root, std::string & ext, const std::string & path)
+        {
+            return splitext_genetic(root, ext, path, double_back_slash, forward_slash, dot);
+        }
+
+        void splitext_posix(std::string & root, std::string & ext, const std::string & path)
+        {
+            return splitext_genetic(root, ext, path, forward_slash, empty_string, dot);
+        }
+
+        void splitext(std::string & root, std::string & ext, const std::string & path)
+        {
+#ifdef WINDOWS
+            return splitext_nt(root, ext, path);
+#else
+            return splitext_posix(root, ext, path);
+#endif
+        }
     }
 }
 }
